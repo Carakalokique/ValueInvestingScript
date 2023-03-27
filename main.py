@@ -3,7 +3,7 @@ import csv
 import json
 
 import apicalls
-from apicalls import tickerincomestatement, tickerbalancesheet, tickercashflow, calculatingvalue
+from apicalls import tickerincomestatement, tickerbalancesheet, tickercashflow, tickerstatistics, tickerprice, calculatingvalue
 
 
 with open('nasdaq_screener_1678251144777.csv') as csvfile:
@@ -21,7 +21,11 @@ with open('nasdaq_screener_1678251144777.csv') as csvfile:
             balancesheet_dict = apicalls.tickerbalancesheet(row[0])
             tickercashflow(row[0])
             cashflow_dict = apicalls.tickercashflow(row[0])
-            calculatingvalue(incomestatement_dict, balancesheet_dict, cashflow_dict)
+            tickerstatistics(row[0])
+            ticker_statistics_dict = apicalls.tickerstatistics(row[0])
+            tickerprice(row[0])
+            ticker_realtime_price_dict = apicalls.tickerprice(row[0])
+            calculatingvalue(incomestatement_dict, balancesheet_dict, cashflow_dict, ticker_statistics_dict, ticker_realtime_price_dict)
             print(row[0])
             line_count += 1
 
