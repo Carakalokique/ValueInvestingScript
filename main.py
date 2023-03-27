@@ -1,14 +1,25 @@
+import openpyxl
 import requests
 import csv
 import json
+import openpyxl
 
 import apicalls
 from apicalls import tickerincomestatement, tickerbalancesheet, tickercashflow, tickerstatistics, tickerprice, calculatingvalue
 
 
-with open('nasdaq_screener_1678251144777.csv') as csvfile:
+
+with open('TSX_tickers_test.csv') as csvfile:
     liststocktickers = csv.reader(csvfile, delimiter=' ', quotechar='|')
     line_count = 0
+
+    # Create a new workbook
+    workbook = openpyxl.Workbook()
+
+    # Select the active worksheet
+    worksheet = workbook.active
+
+
     for row in liststocktickers:
         if line_count == 0:
             print(f'Column names are {", ".join(row)}')
@@ -29,5 +40,17 @@ with open('nasdaq_screener_1678251144777.csv') as csvfile:
             print(row[0])
             line_count += 1
 
+            # Write ticker to a cell
+            worksheet[f'A{row}'] = row[0]
+            # Write price to a cell
+            worksheet[f'B{row}'] = 'Hello, world!'
+            # Write earning_capacity_value_cyclic to a cell
+            worksheet[f'C{row}'] = 'Hello, world!'
+            # Write earning_capacity_value_growth to a cell
+            worksheet[f'D{row}'] = 'Hello, world!'
+
     print(f'Processed {line_count} lines.')
+
+# Save the workbook
+workbook.save('Tickers with values.xlsx')
 
