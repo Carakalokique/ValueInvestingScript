@@ -1,73 +1,79 @@
 import requests
 import json
+apikey = '01ac55e20e6e49f6bcb340d2d8600558'
 
 def tickerincomestatement (ticker):
     # GET INCOME STATEMENT DATA
     stockincomestatement = requests.get(
-        f'https://api.twelvedata.com/income_statement?symbol={ticker}&apikey=demo')
+        f'https://api.twelvedata.com/income_statement?symbol={ticker}&apikey={apikey}')
+    print(stockincomestatement.status_code)
     # Transform API call response to string
     stockincomestatement_string = stockincomestatement.text
 
     # Makes the JSON response from API call look pretty in terminal
     incomestatement_dict = json.loads(stockincomestatement_string)
     pretty_incomestatement = json.dumps(incomestatement_dict, indent=4)
-    # print(pretty_incomestatement)
+    print(pretty_incomestatement)
     return incomestatement_dict
+
 
 def tickerbalancesheet (ticker):
     # GET BALANCE SHEET DATA
     stockbalancesheet = requests.get(
-        f'https://api.twelvedata.com/balance_sheet?symbol={ticker}&apikey=demo')
+        f'https://api.twelvedata.com/balance_sheet?symbol={ticker}&apikey={apikey}')
+    print(stockbalancesheet.status_code)
     # Transform API call response to string
     stockbalancesheet_string = stockbalancesheet.text
 
     # Makes the JSON response from API call look pretty in terminal
     balancesheet_dict = json.loads(stockbalancesheet_string)
     pretty_balancesheet = json.dumps(balancesheet_dict, indent=4)
-    # print(pretty_balancesheet)
+    print(pretty_balancesheet)
     return balancesheet_dict
 
 def tickercashflow (ticker):
     # GET CASH FLOW DATA
     stockcashflow = requests.get(
-        f'https://api.twelvedata.com/cash_flow?symbol={ticker}&apikey=demo')
+        f'https://api.twelvedata.com/cash_flow?symbol={ticker}&apikey={apikey}')
+    print(stockcashflow.status_code)
     # Transform API call response to string
     stockcashflow_string = stockcashflow.text
 
     # Makes the JSON response from API call look pretty in terminal
     cashflow_dict = json.loads(stockcashflow_string)
     pretty_cashflow = json.dumps(cashflow_dict, indent=4)
-    # print(pretty_cashflow)
+    print(pretty_cashflow)
     return cashflow_dict
 
 def tickerstatistics (ticker):
     # GET TICKER STATISTICS
     ticker_statistics = requests.get(
-        f'https://api.twelvedata.com/statistics?symbol={ticker}&apikey=demo')
+        f'https://api.twelvedata.com/statistics?symbol={ticker}&apikey={apikey}')
+    print(ticker_statistics.status_code)
     # Transform API call response to string
     ticker_statistics_string = ticker_statistics.text
 
     # Makes the JSON response from API call look pretty in terminal
     ticker_statistics_dict = json.loads(ticker_statistics_string)
     pretty_ticker_statistics = json.dumps(ticker_statistics_dict, indent=4)
-    # print(pretty_ticker_statistics)
+    print(pretty_ticker_statistics)
     return ticker_statistics_dict
 def tickerprice (ticker):
     # GET TICKER REAL-TIME PRICE
     ticker_realtime_price = requests.get(
-        f'https://api.twelvedata.com/price?symbol={ticker}&apikey=demo')
+        f'https://api.twelvedata.com/price?symbol={ticker}&apikey={apikey}')
+    print(ticker_realtime_price.status_code)
     # Transform API call response to string
     ticker_realtime_price_string = ticker_realtime_price.text
 
     # Makes the JSON response from API call look pretty in terminal
-    ticker_realtime_price_dict = json.loads(ticker_realtime_price_string)
-    pretty_ticker_realtime_price = json.dumps(ticker_realtime_price_dict, indent=4)
-    # print(pretty_ticker_realtime_price)
-    return ticker_realtime_price_dict
+    ticker_price_dict = json.loads(ticker_realtime_price_string)
+    pretty_ticker_realtime_price = json.dumps(ticker_price_dict, indent=4)
+    print(pretty_ticker_realtime_price)
+    return ticker_price_dict
 
 
-
-def calculatingvalue (incomestatement_dict, balancesheet_dict, cashflow_dict, ticker_statistics_dict, ticker_realtime_price_dict):
+def calculatingvalue (incomestatement_dict, balancesheet_dict, cashflow_dict, ticker_statistics_dict, ticker_price_dict):
 
     year_dict = {}
     revenue_dict = {}
@@ -87,8 +93,9 @@ def calculatingvalue (incomestatement_dict, balancesheet_dict, cashflow_dict, ti
         revenue_dict[f'revenue{i+1}'] = incomestatement_dict["income_statement"][i]["sales"]
         print("Revenue:", revenue_dict[f'revenue{i+1}'])
 
-
         spendingincome_dict[f'spendingincome{i+1}'] = incomestatement_dict["income_statement"][i]["operating_income"]
+        spendingincome_dict[f'spendingincome{i+1}'] = 0 if spendingincome_dict[f'spendingincome{i+1}'] is None else \
+        spendingincome_dict[f'spendingincome{i+1}']
         print("Spending income:", spendingincome_dict[f'spendingincome{i+1}'])
 
 
@@ -130,6 +137,8 @@ def calculatingvalue (incomestatement_dict, balancesheet_dict, cashflow_dict, ti
         print('Revenue Growth YoY', revenue_growth_yoy_dict[f'revenue_growth_yoy{i+1}'])
 
     ratio_average = sum(revenuetoinvestmentrate_dict.values()) / len(revenuetoinvestmentrate_dict)
+    if ratio_average == 0:
+        ratio_average = 1
     print('Ratio Average:', ratio_average)
 
     investment_to_growth_rate_dict = {}
@@ -151,6 +160,8 @@ def calculatingvalue (incomestatement_dict, balancesheet_dict, cashflow_dict, ti
         print('Margin Earning capacity/Revenue:', margin_earning_capacity_to_revenue_dict[f'margin_earning_capacity_to_revenue{i + 1}'])
 
     average_margin = sum(margin_earning_capacity_to_revenue_dict.values()) / len(margin_earning_capacity_to_revenue_dict)
+    if average_margin == 0:
+        average_margin = 1
     print('Average margin:', average_margin)
 
     earning_capacity_cyclic = sum(earning_capacity_dict.values()) / len(earning_capacity_dict)
@@ -161,10 +172,12 @@ def calculatingvalue (incomestatement_dict, balancesheet_dict, cashflow_dict, ti
 
     cost_of_capital = 0.3
     number_of_shares = ticker_statistics_dict["statistics"]["stock_statistics"]["shares_outstanding"]
+    number_of_shares = 0.000001 if number_of_shares is None or number_of_shares == 0 else number_of_shares
     print('Number of shares:', number_of_shares)
-    current_price = ticker_realtime_price_dict["price"]
+    current_price = ticker_price_dict["price"]
     print('Current price:', current_price)
     earning_capacity_value_cyclic = earning_capacity_cyclic / cost_of_capital / number_of_shares
     print('Earning capacity value (cyclical):', earning_capacity_value_cyclic)
     earning_capacity_value_growth = earning_capacity_growth / cost_of_capital / number_of_shares
     print('Earning capacity value (growth):', earning_capacity_value_growth)
+    return current_price, earning_capacity_value_cyclic, earning_capacity_value_growth
